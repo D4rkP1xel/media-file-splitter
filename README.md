@@ -25,17 +25,33 @@ Ensure that ffmpeg is installed on your system. Installation commands may vary d
 
 <br/>
    
-`splitter.SplitMediaFileByTimedChunks(secondsPerChunk, inputFilePath, outputDirectoryPath, ...createFolderIfNotExists)`
+`splitter.SplitMediaFileByTimedChunks(secondsPerChunk, inputFilePath, outputDirectoryPath, ...createFolderIfNotExists) ([]string, error)`
 
 <br/>
 
 **secondsPerChunk** \<int>: How much time (in seconds) each chunk should have, except the last one.
 
-**inputFilePath** \<string>: Path to the input media file
+**inputFilePath** \<string>: Path to the input media file.
 
-**outputDirectoryPath** \<string>: Path to directory where the chunks will be stored
+**outputDirectoryPath** \<string>: Path to directory where the chunks will be stored.
 
 **createFolderIfNotExist** \<bool>(optional): Whether to create the output directory if it does not exist. Default is false.
+
+<br/>
+
+**returns**:
+
+**outputFilePaths** \<[]string>: Array with the paths to the newly created chunks.
+
+**error** \<error>: Error return in case something goes wrong
+
+<br/>
+
+<br/>
+
+## Example
+
+`chunkPaths, err := splitter.SplitMediaFileByTimedChunks(30, "/path/to/input/folder/input.mp3", "/path/to/output/folder", true)`
 
 <br/>
 

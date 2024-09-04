@@ -9,14 +9,14 @@ import (
 	"sync"
 )
 
-func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outputDirectoryPath string, createFolderIfNotExists ...bool) error {
+func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outputDirectoryPath string, createFolderIfNotExists ...bool) ([]string, error) {
 	createOutputFolder := false
 	if len(createFolderIfNotExists) > 0 {
 		createOutputFolder = createFolderIfNotExists[0]
 	}
 
 	if secondsPerChunk <= 0 {
-		return fmt.Errorf("Insert a valid number of secondsPerChunk (>0)")
+		return nil, fmt.Errorf("Insert a valid number of secondsPerChunk (>0)")
 	}
 
 	// check if output folder exists
@@ -24,31 +24,31 @@ func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outp
 	if err != nil {
 		//output folder not found
 		if !createOutputFolder {
-			return fmt.Errorf("Error finding output directory: %s", err.Error())
+			return nil, fmt.Errorf("Error finding output directory: %s", err.Error())
 		}
 
 		// create output folder
 		err = os.Mkdir(outputDirectoryPath, 0744)
 		if err != nil {
-			return fmt.Errorf("Error creating output directory: %s", err.Error())
+			return nil, fmt.Errorf("Error creating output directory: %s", err.Error())
 		}
 	}
 
 	_, err = os.Stat(inputFilePath)
 	if err != nil {
-		return fmt.Errorf("Error finding input file: %s", err.Error())
+		return nil, fmt.Errorf("Error finding input file: %s", err.Error())
 	}
 
 	cmd := exec.Command("ffmpeg", "-i", inputFilePath, "-f", "null", "-")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("Error getting file duration: %s", err)
+		return nil, fmt.Errorf("Error getting file duration: %s", err)
 	}
 
 	// Parse the duration from the FFmpeg output
 	durationStr := parseFFMPEGDuration(string(output))
 	if durationStr == "" {
-		return fmt.Errorf("Could not determine file duration")
+		return nil, fmt.Errorf("Could not determine file duration")
 	}
 
 	durationStrSplit := strings.Split(durationStr, ":")
@@ -64,14 +64,18 @@ func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outp
 		numChunks++
 	}
 
+	//grab the input file type
 	fileType := strings.Split(inputFilePath, ".")[1]
 	var wg sync.WaitGroup
 	errChan := make(chan error, numChunks)
 	// Split the file into chunks using FFmpeg
 	var i uint16
+	outputFilesPaths := make([]string, numChunks, numChunks)
 	for i = 0; i < numChunks; i++ {
 		wg.Add(1)
-		go generateChunk(i, uint16(secondsPerChunk), outputDirectoryPath, inputFilePath, fileType, errChan, &wg)
+		outputFilePath := fmt.Sprintf("%s/chunk_%03d.%s", outputDirectoryPath, i+1, fileType)
+		outputFilesPaths[i] = outputFilePath
+		go generateChunk(i, uint16(secondsPerChunk), inputFilePath, outputFilePath, errChan, &wg)
 	}
 
 	wg.Wait()
@@ -80,11 +84,11 @@ func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outp
 	// Collect errors from goroutines
 	for i = 0; i < numChunks; i++ {
 		if err := <-errChan; err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return outputFilesPaths, nil
 }
 
 // Helper function to parse the duration from FFmpeg output
@@ -102,11 +106,10 @@ func parseFFMPEGDuration(output string) string {
 	return output[startIndex:endIndex]
 }
 
-func generateChunk(chunkIndex uint16, secondsPerChunk uint16, outputDirectory string, inputFilePath string, fileType string, errChan chan<- error, wg *sync.WaitGroup) {
+func generateChunk(chunkIndex uint16, secondsPerChunk uint16, inputFilePath string, outputFilePath string, errChan chan<- error, wg *sync.WaitGroup) {
 	startTime := chunkIndex * uint16(secondsPerChunk)
-	outputFile := fmt.Sprintf("%s/chunk_%03d.%s", outputDirectory, chunkIndex+1, fileType)
 
-	cmd := exec.Command("ffmpeg", "-i", inputFilePath, "-ss", fmt.Sprintf("%d", startTime), "-t", fmt.Sprintf("%d", secondsPerChunk), "-acodec", "libmp3lame", outputFile)
+	cmd := exec.Command("ffmpeg", "-i", inputFilePath, "-ss", fmt.Sprintf("%d", startTime), "-t", fmt.Sprintf("%d", secondsPerChunk), "-acodec", "libmp3lame", outputFilePath)
 	output, err := cmd.CombinedOutput()
 
 	if err != nil {
