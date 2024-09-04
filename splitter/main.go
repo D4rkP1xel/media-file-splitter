@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outputDirectory string, createFolderIfNotExists ...bool) error {
+func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outputDirectoryPath string, createFolderIfNotExists ...bool) error {
 	createOutputFolder := false
 	if len(createFolderIfNotExists) > 0 {
 		createOutputFolder = createFolderIfNotExists[0]
@@ -20,7 +20,7 @@ func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outp
 	}
 
 	// check if output folder exists
-	_, err := os.Stat(outputDirectory)
+	_, err := os.Stat(outputDirectoryPath)
 	if err != nil {
 		//output folder not found
 		if !createOutputFolder {
@@ -28,7 +28,7 @@ func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outp
 		}
 
 		// create output folder
-		err = os.Mkdir(outputDirectory, 0744)
+		err = os.Mkdir(outputDirectoryPath, 0744)
 		if err != nil {
 			return fmt.Errorf("Error creating output directory: %s", err.Error())
 		}
@@ -71,7 +71,7 @@ func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outp
 	var i uint16
 	for i = 0; i < numChunks; i++ {
 		wg.Add(1)
-		go generateChunk(i, uint16(secondsPerChunk), outputDirectory, inputFilePath, fileType, errChan, &wg)
+		go generateChunk(i, uint16(secondsPerChunk), outputDirectoryPath, inputFilePath, fileType, errChan, &wg)
 	}
 
 	wg.Wait()
