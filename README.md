@@ -1,4 +1,7 @@
-A simple tool to split an audio/video file into chunks.
+# What is it?
+**media-file-splitter** is a simple Go package designed to split audio/video files into chunks.
+
+Useful for data streaming services where media files have to be delivered in small segments.
 
 <br/>
 
@@ -43,13 +46,11 @@ Ensure that ffmpeg is installed on your system. Installation commands may vary d
 
 **outputFilePaths** \<[]string>: Array with the paths to the newly created chunks.
 
-**error** \<error>: Error return in case something goes wrong
+**error** \<error>: Error return in case something goes wrong.
 
 <br/>
 
-<br/>
-
-## Example
+# Example
 
 `chunkPaths, err := splitter.SplitMediaFileByTimedChunks(30, "/path/to/input/folder/input.mp3", "/path/to/output/folder", true)`
 
