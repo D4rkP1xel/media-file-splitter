@@ -1,4 +1,4 @@
-package main
+package splitter
 
 import (
 	"fmt"
@@ -8,13 +8,6 @@ import (
 	"strings"
 	"sync"
 )
-
-func main() {
-	err := SplitAudioByTimedChunks(30, "/home/alex/Music/intravenus.mp4", "/home/alex/Music/output2", true)
-	if err != nil {
-		fmt.Printf("%s\n", err)
-	}
-}
 
 func SplitMediaFileByTimedChunks(secondsPerChunk int, inputFilePath string, outputDirectory string, createFolderIfNotExists ...bool) error {
 	createOutputFolder := false
