@@ -15,7 +15,7 @@ Ensure that ffmpeg is installed on your system. Installation commands may vary d
 <br/>
 
 # How to use
-### 1. Import the package
+## 1. Import the package
 
 <br/>
 
@@ -24,9 +24,9 @@ Ensure that ffmpeg is installed on your system. Installation commands may vary d
 <br/>
 
 
-### 2. Functions
+## 2. Functions
 
-#### 2.1 SplitMediaFile
+### 2.1 SplitMediaFile
 
 Splits the media file into **all** possible segments of `secondsPerChunk` size.
 
@@ -62,7 +62,7 @@ Splits the media file into **all** possible segments of `secondsPerChunk` size.
 
 <br/>
 
-#### 2.2 SplitMediaFileByStartChunkIndex
+### 2.2 SplitMediaFileByStartChunkIndex
 
 Splits the media file into `numChunksToSplit` segments of `secondsPerChunk` size starting at the chunk at index `startChunkIndex`.
 The media file will only be split until there are no more chunks to split. In case you want all chunks starting from `startChunkIndex` index to the last chunk, make `numChunksToSplit` a big number (ex: 9999).
@@ -77,7 +77,7 @@ The media file will only be split until there are no more chunks to split. In ca
 
 <br/>
 
-#### 2.3 SplitMediaFileByStartTimePos
+### 2.3 SplitMediaFileByStartTimePos
 
 Split the media file into `numChunksToSplit` segments of `secondsPerChunk` size starting at timestamp `startPosInSec`.
 The media file will only be split until there are no more chunks to split. In case you want all chunks starting from `startChunkIndex` index to the last chunk, make `numChunksToSplit` a big number (ex: 9999).
