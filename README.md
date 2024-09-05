@@ -24,15 +24,21 @@ Ensure that ffmpeg is installed on your system. Installation commands may vary d
 <br/>
 
 
-### 2. Call the function
+### 2. Functions
+
+#### 2.1 SplitMediaFile
+
+Splits the media file into **all** possible segments of `secondsPerChunk` size.
+
+**Example:** A 300 second audio file split in 50 second segments will result in 6 chunks.
 
 <br/>
    
-`splitter.SplitMediaFileByTimedChunks(secondsPerChunk, inputFilePath, outputDirectoryPath, ...createFolderIfNotExists) ([]string, error)`
+`SplitMediaFileByTimedChunks(secondsPerChunk, inputFilePath, outputDirectoryPath, ...createFolderIfNotExists) ([]string, error)`
 
 <br/>
 
-**secondsPerChunk** \<int>: How much time (in seconds) each chunk should have, except the last one.
+**secondsPerChunk** \<int>: How much time (in seconds) each chunk should have.
 
 **inputFilePath** \<string>: Path to the input media file.
 
@@ -50,13 +56,42 @@ Ensure that ffmpeg is installed on your system. Installation commands may vary d
 
 <br/>
 
-# Example
+### Example
 
 `chunkPaths, err := splitter.SplitMediaFileByTimedChunks(30, "/path/to/input/folder/input.mp3", "/path/to/output/folder", true)`
 
 <br/>
 
+#### 2.2 SplitMediaFileByStartChunkIndex
+
+Splits the media file into `numChunksToSplit` segments of `secondsPerChunk` size starting at the chunk at index `startChunkIndex`.
+The media file will only be split until there are no more chunks to split. In case you want all chunks starting from `startChunkIndex` index to the last chunk, make `numChunksToSplit` a big number (ex: 9999).
+
+**Example:** A 300 second audio file, starting at index 2, with three 50 second chunks to split, will split the file at chunk index 2, 3, and 4.
+
 <br/>
+
+### Example
+   
+`SplitMediaFileByStartChunkIndex(secondsPerChunk, numChunksToSplit, startChunkIndex, inputFilePath, outputDirectoryPath, ...createFolderIfNotExists) ([]string, error)`
+
+<br/>
+
+#### 2.3 SplitMediaFileByStartTimePos
+
+Split the media file into `numChunksToSplit` segments of `secondsPerChunk` size starting at timestamp `startPosInSec`.
+The media file will only be split until there are no more chunks to split. In case you want all chunks starting from `startChunkIndex` index to the last chunk, make `numChunksToSplit` a big number (ex: 9999).
+
+**Example:** A 300 second audio file, starting at second 25, with three 60 second chunks to split, will split the file at chunk 00:25-01:25, 01:25-02:25 and 02:25-03:25.
+
+<br/>
+
+### Example
+   
+`SplitMediaFileByStartTimePos(secondsPerChunk, numChunksToSplit, startPosInSec, inputFilePath, outputDirectoryPath, ...createFolderIfNotExists) ([]string, error)`
+
+<br/>
+
 
 ## Additional Info
 
