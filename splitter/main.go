@@ -21,7 +21,7 @@ func SplitMediaFile(secondsPerChunk int, inputFilePath string, outputDirectoryPa
 	}
 
 	//grab the input file name and type
-	fileName := fileData.InputFileInfo.Name()
+	fileName := strings.Split(fileData.InputFileInfo.Name(), ".")[0]
 	fileType := strings.Split(inputFilePath, ".")[1]
 
 	var wg sync.WaitGroup
@@ -67,7 +67,7 @@ func SplitMediaFileByStartTimePos(secondsPerChunk int, numChunksToSplit int,
 	}
 
 	//grab the input file name and type
-	fileName := fileData.InputFileInfo.Name()
+	fileName := strings.Split(fileData.InputFileInfo.Name(), ".")[0]
 	fileType := strings.Split(inputFilePath, ".")[1]
 	var wg sync.WaitGroup
 
@@ -106,7 +106,9 @@ func SplitMediaFileByStartChunkIndex(secondsPerChunk int, numChunksToSplit int,
 	if fileData.Duration%uint32(secondsPerChunk) != 0 {
 		numChunks++
 	}
-
+	if startChunkIndex < 0 {
+		return nil, fmt.Errorf("Starting chunk index cannot be a negative number")
+	}
 	if (startChunkIndex + 1) > int(numChunks) {
 		return nil, fmt.Errorf("Starting chunk cannot be bigger than total num chunks.\nStarting chunk index: %d\nTotal num chunks: %d\n", startChunkIndex, numChunks)
 	}
@@ -118,7 +120,7 @@ func SplitMediaFileByStartChunkIndex(secondsPerChunk int, numChunksToSplit int,
 	}
 
 	//grab the input file name and type
-	fileName := fileData.InputFileInfo.Name()
+	fileName := strings.Split(fileData.InputFileInfo.Name(), ".")[0]
 	fileType := strings.Split(inputFilePath, ".")[1]
 	var wg sync.WaitGroup
 
