@@ -52,6 +52,8 @@ Splits the media file into **all** possible segments of `secondsPerChunk` size.
 
 **outputFilePaths** \<[]string>: Array with the paths to the newly created chunks.
 
+**fileData** \<FileData>: Struct with file info like file duration.
+
 **error** \<error>: Error return in case something goes wrong.
 
 <br/>
