@@ -9,10 +9,10 @@ import (
 	"github.com/D4rkP1xel/media-file-splitter/utils"
 )
 
-func SplitMediaFile(secondsPerChunk int, inputFilePath string, outputDirectoryPath string, createFolderIfNotExists ...bool) ([]string, error) {
+func SplitMediaFile(secondsPerChunk int, inputFilePath string, outputDirectoryPath string, createFolderIfNotExists ...bool) ([]string, utils.FileData, error) {
 	fileData, err := utils.HandleParams(createFolderIfNotExists, secondsPerChunk, outputDirectoryPath, inputFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("%s\n", err)
+		return nil, utils.FileData{}, fmt.Errorf("%s\n", err)
 	}
 	// Calculate number of chunks
 	var numChunks uint32 = fileData.Duration / uint32(secondsPerChunk)
@@ -39,23 +39,23 @@ func SplitMediaFile(secondsPerChunk int, inputFilePath string, outputDirectoryPa
 
 	err = utils.HandleCloseChannel(errChan, uint16(numChunks), &wg)
 	if err != nil {
-		return nil, fmt.Errorf("%s\n", err)
+		return nil, utils.FileData{}, fmt.Errorf("%s\n", err)
 	}
 
-	return outputFilesPaths, nil
+	return outputFilesPaths, fileData, nil
 }
 
 func SplitMediaFileByStartTimePos(secondsPerChunk int, numChunksToSplit int,
 	startPosInSec float64, inputFilePath string,
-	outputDirectoryPath string, createFolderIfNotExists ...bool) ([]string, error) {
+	outputDirectoryPath string, createFolderIfNotExists ...bool) ([]string, utils.FileData, error) {
 
 	fileData, err := utils.HandleParams(createFolderIfNotExists, secondsPerChunk, outputDirectoryPath, inputFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("%s\n", err)
+		return nil, utils.FileData{}, fmt.Errorf("%s\n", err)
 	}
 
 	if startPosInSec > float64(fileData.Duration) {
-		return nil, fmt.Errorf("StartPosInSec cannot be bigger than file duration")
+		return nil, utils.FileData{}, fmt.Errorf("StartPosInSec cannot be bigger than file duration")
 	}
 
 	// Calculate number of chunks
@@ -86,19 +86,19 @@ func SplitMediaFileByStartTimePos(secondsPerChunk int, numChunksToSplit int,
 
 	err = utils.HandleCloseChannel(errChan, uint16(numChunksToSplit), &wg)
 	if err != nil {
-		return nil, fmt.Errorf("%s\n", err)
+		return nil, utils.FileData{}, fmt.Errorf("%s\n", err)
 	}
 
-	return outputFilesPaths, nil
+	return outputFilesPaths, fileData, nil
 }
 
 func SplitMediaFileByStartChunkIndex(secondsPerChunk int, numChunksToSplit int,
 	startChunkIndex int, inputFilePath string,
-	outputDirectoryPath string, createFolderIfNotExists ...bool) ([]string, error) {
+	outputDirectoryPath string, createFolderIfNotExists ...bool) ([]string, utils.FileData, error) {
 
 	fileData, err := utils.HandleParams(createFolderIfNotExists, secondsPerChunk, outputDirectoryPath, inputFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("%s\n", err)
+		return nil, utils.FileData{}, fmt.Errorf("%s\n", err)
 	}
 
 	// Calculate number of chunks
@@ -107,10 +107,10 @@ func SplitMediaFileByStartChunkIndex(secondsPerChunk int, numChunksToSplit int,
 		numChunks++
 	}
 	if startChunkIndex < 0 {
-		return nil, fmt.Errorf("Starting chunk index cannot be a negative number")
+		return nil, utils.FileData{}, fmt.Errorf("Starting chunk index cannot be a negative number")
 	}
 	if (startChunkIndex + 1) > int(numChunks) {
-		return nil, fmt.Errorf("Starting chunk cannot be bigger than total num chunks.\nStarting chunk index: %d\nTotal num chunks: %d\n", startChunkIndex, numChunks)
+		return nil, utils.FileData{}, fmt.Errorf("Starting chunk cannot be bigger than total num chunks.\nStarting chunk index: %d\nTotal num chunks: %d\n", startChunkIndex, numChunks)
 	}
 
 	numChunksLeft := numChunks - (uint32(startChunkIndex))
@@ -138,8 +138,8 @@ func SplitMediaFileByStartChunkIndex(secondsPerChunk int, numChunksToSplit int,
 
 	err = utils.HandleCloseChannel(errChan, uint16(numChunksToSplit), &wg)
 	if err != nil {
-		return nil, fmt.Errorf("%s\n", err)
+		return nil, utils.FileData{}, fmt.Errorf("%s\n", err)
 	}
 
-	return outputFilesPaths, nil
+	return outputFilesPaths, fileData, nil
 }
